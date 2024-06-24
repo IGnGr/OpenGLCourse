@@ -7,9 +7,15 @@ out vec3 color;
 out vec2 textureCoordinates;
 uniform float scale;
 
+//Different matrices for 3D geometry
+uniform mat4 model;
+uniform mat4 view;
+uniform mat4 proj;
+
+
 void main()
 {
-   gl_Position = vec4(aPos.x * scale, aPos.y * scale, aPos.z * scale, 1.0);
+   gl_Position = proj * view * model * vec4(aPos, 1.0);
    color = aColor;
    textureCoordinates = aText;
 }

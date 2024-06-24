@@ -2,7 +2,9 @@
 #include<glad/glad.h>
 #include<GLFW/glfw3.h>
 #include<stb/stb_image.h>
-
+#include <glm/glm.hpp>
+#include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtc/type_ptr.hpp>
 
 #include "ShaderClass.h"
 #include "VBO.h"
@@ -13,18 +15,26 @@
 
 GLfloat vertices[] =
 {  // Coordinates					//Color					//Texture mapping coordinates
-	-0.5f, -0.5f , 0.0f,            1.0f, 0.0f, 0.0f,		0.0f, 0.0f, //Left lower corner
-	-0.5f,  0.5f , 0.0f,            0.0f, 1.0f, 0.0f,		0.0f, 1.0f, //Left upper corner
-	 0.5f,  0.5f , 0.0f,            0.0f, 0.0f, 1.0f,		1.0f, 1.0f,	//Right upper corner
-	 0.5f, -0.5f , 0.0f,            1.0f, 1.0f, 1.0f,		1.0f, 0.0f  //Right lower corner
+	-0.5f,  0.0f , 0.5f,            0.83f, 0.0f, 0.0f,		0.0f, 0.0f, 
+	-0.5f,  0.0f ,-0.5f,            0.0f, 1.0f, 0.0f,		5.0f, 0.0f, 
+	 0.5f,  0.0f ,-0.5f,            0.0f, 0.0f, 1.0f,		0.0f, 0.0f,	
+	 0.5f,  0.0f , 0.5f,            1.0f, 1.0f, 1.0f,		5.0f, 0.0f,  
+	 0.0f,  0.8f , 0.0f,            1.0f, 1.0f, 1.0f,		2.5f, 5.0f  
 
 };
 
 GLuint indices[] =
 {
 	0, 1, 2,
-	0, 2, 3
+	0, 2, 3,
+	0, 1, 4,
+	1, 2, 4,
+	2, 3, 4,
+	3, 0, 4
 };
+
+const unsigned int width = 800;
+const unsigned int height = 800;
 
 int main()
 {
@@ -40,7 +50,7 @@ int main()
 
 
 	//Creating window 800 x 800 pixels, with "OpenGL course" title
-	GLFWwindow* window = glfwCreateWindow(800, 800, "OpenGL Course", NULL, NULL);
+	GLFWwindow* window = glfwCreateWindow(width, height, "OpenGL Course", NULL, NULL);
 
 
 	//Error handling in the window creation
@@ -58,12 +68,12 @@ int main()
 	gladLoadGL();
 
 	//Specifying the viewport, from 0,0 to 800,800
-	glViewport(0, 0, 800, 800);
+	glViewport(0, 0, width, height);
 
 	//Instancing shader program
 	Shader shaderProgram = Shader("default.vert", "default.frag");
 
-		//References for vertex array object, vertex buffer object and element buffer object
+	//References for vertex array object, vertex buffer object and element buffer object
 	VAO VAOObject;
 	//Binding VAO so the instances of VBO and EBO point to it
 	VAOObject.Bind();
@@ -90,7 +100,7 @@ int main()
 
 	//Textures
 
-	Texture catTexture("pop_cat.png", GL_TEXTURE_2D, GL_TEXTURE0, GL_RGBA, GL_UNSIGNED_BYTE);
+	Texture catTexture("brick.png", GL_TEXTURE_2D, GL_TEXTURE0, GL_RGBA, GL_UNSIGNED_BYTE);
 	catTexture.TexUnit(shaderProgram, "tex0", 0);
 
 
@@ -103,13 +113,53 @@ int main()
 	//Swapping buffers so we see the one with the custom color
 	glfwSwapBuffers(window);
 
+	//Pyramid rotation variables
+	float rotation = 0.0f;
+	double prevTime = glfwGetTime();
+
+	//Enabling depth buffer
+	glEnable(GL_DEPTH_TEST);
+
 	//Main loop to be able to see the window
 	while (!glfwWindowShouldClose(window))
 	{
+		//Specifying the color of the background
 		glClearColor(0.07f, 0.13f, 0.17f, 1.0f);
-		glClear(GL_COLOR_BUFFER_BIT);
+
+		//Cleaning back buffer and depth buffer 
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		//Specifying shader program to use
 		shaderProgram.Activate();
+
+		double currentTime = glfwGetTime();
+
+		if (currentTime - prevTime >= 1 / 60)
+		{
+			rotation += 0.5f;
+			prevTime = currentTime;
+		}
+
+		//Initializing matrices
+		glm::mat4 model = glm::mat4(1.0f);
+		glm::mat4 view = glm::mat4(1.0f);
+		glm::mat4 proj = glm::mat4(1.0f);
+
+		//Calculating the model, view and projection matrices
+		model = glm::rotate(model, glm::radians(rotation), glm::vec3(0.0f, 1.0f, 0.0f));
+		view = glm::translate(view, glm::vec3(0.0f, -0.5f, -2.0f));
+		proj = glm::perspective(glm::radians(45.0f), (float)width / height, 0.1f, 100.0f);
+
+
+		//Inserting the matrices into the vertex shader. via uniform 
+		int modelLoc = glGetUniformLocation(shaderProgram.ID, "model");
+		glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
+
+		int viewLoc = glGetUniformLocation(shaderProgram.ID, "view");
+		glUniformMatrix4fv(viewLoc, 1, GL_FALSE, glm::value_ptr(view));
+
+		int projLoc = glGetUniformLocation(shaderProgram.ID, "proj");
+		glUniformMatrix4fv(projLoc, 1, GL_FALSE, glm::value_ptr(proj));
+
 		//Assigning value to the uniform float unIID. Must be done after the shader program is activated.
 		glUniform1f(uniID, 1.5f);
 		catTexture.Bind();
@@ -117,7 +167,7 @@ int main()
 		//Binding the VAO so its used by OpenGL
 		VAOObject.Bind();
 		//Draws the triangle using the GL_TRIANGLES primitive
-		glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+		glDrawElements(GL_TRIANGLES, sizeof(indices)/sizeof(int), GL_UNSIGNED_INT, 0);
 		glfwSwapBuffers(window);
 
 		//GLFW event handling
