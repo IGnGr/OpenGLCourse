@@ -2,6 +2,7 @@
 
 EBO::EBO(GLuint* indices, GLsizeiptr size)
 {
+	//Generating buffer
 	glGenBuffers(1, &ID);
 	//Binding the EBO, specifying its type GL_ARRAY_BUFFER
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ID);

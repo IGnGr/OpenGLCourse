@@ -6,10 +6,24 @@
 #include "VAO.h"
 #include "EBO.h"
 
-// Vertex Shader source code
+GLfloat vertices[] =
+{
+	-0.5f, -0.5f * float(sqrt(3)) / 3,       0.0f,  0.8f, 0.3f, 0.02f, //Left lower corner
+	0.5f, -0.5f * float(sqrt(3)) / 3,        0.0f,  0.8f, 0.3f, 0.02f, //Right lower corner
+	0.0f, 0.5f * float(sqrt(3)) * 2 / 3,     0.0f,  1.0f, 0.6f, 0.32f,//Upper corner
 
-//Fragment Shader source code
+	-0.5f / 2, 0.5f * float(sqrt(3)) / 6,    0.0f,  0.9f, 0.45f, 0.17f,//Inner left
+	0.5f / 2, 0.5f * float(sqrt(3)) / 6,     0.0f,  0.9f, 0.45f, 0.17f,//Inner right
+	0.0f, -0.5f * float(sqrt(3)) / 3,        0.0f,  0.8f, 0.3f, 0.02f,//Inner down
+};
 
+GLuint indices[] =
+{
+	0, 3, 5, //Lower left triang2le
+	3, 2, 4, //Lower right triangle
+	5, 4, 1 // Upper triangle
+
+};
 
 int main()
 {
@@ -22,27 +36,6 @@ int main()
 
 	//Selecting CORE profile
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
-
-	GLfloat vertices[] =
-	{
-		-0.5f, -0.5f * float(sqrt(3)) / 3, 0.0f, //Left lower corner
-		0.5f, -0.5f * float(sqrt(3)) / 3, 0.0f, //Right lower corner
-		0.0f, 0.5f * float(sqrt(3)) * 2 / 3, 0.0f, //Upper corner
-
-		-0.5f/2, 0.5f* float(sqrt(3))/ 6, 0.0f, //Inner left
-		0.5f/2, 0.5f* float(sqrt(3)) / 6, 0.0f, //Inner right
-		0.0f, -0.5f * float(sqrt(3)) /3, 0.0f //Inner down
-	};
-
-	GLuint indices[] =
-	{
-		0, 3, 5, //Lower left triang2le
-		3, 2, 4, //Lower right triangle
-		5, 4, 1 // Upper triangle
-
-	};
-
-
 
 
 	//Creating window 800 x 800 pixels, with "OpenGL course" title
@@ -66,25 +59,32 @@ int main()
 	//Specifying the viewport, from 0,0 to 800,800
 	glViewport(0, 0, 800, 800);
 
-	Shader shader = Shader("default.vert", "default.frag");
+	//Instancing shader program
+	Shader shaderProgram = Shader("default.vert", "default.frag");
 
-
-	//References for vertex array object, vertex buffer object and element buffer object
+		//References for vertex array object, vertex buffer object and element buffer object
 	VAO VAOObject;
+	//Binding VAO so the instances of VBO and EBO point to it
 	VAOObject.Bind();
+
+	//Instancing VBO and EBO
 	VBO VBOObject = VBO(vertices, sizeof(vertices));
 	EBO EBOObject = EBO(indices, sizeof(indices));
 
+	//Linking VAO to VBO and specifying layout
+	//Position
+	VAOObject.LinkAttrib(VBOObject, 0, 3, GL_FLOAT, 6 * sizeof(float), (void*)0);
+	//Color
+	VAOObject.LinkAttrib(VBOObject, 1, 3, GL_FLOAT, 6 * sizeof(float), (void*) (3*sizeof(float)));
 
-	VAOObject.LinkVBO(VBOObject, 0);
-
+	//Unbinding once everything is instanciated
 	VAOObject.Unbind();
 	VBOObject.Unbind();
 	EBOObject.Unbind();
+
+	//Getting the uniform value from shaders
+	GLuint uniID = glGetUniformLocation(shaderProgram.ID, "scale");
 	
-
-
-
 	//Setting the color of the background
 	glClearColor(0.07f, 0.13f, 0.17f, 1.0f);
 
@@ -100,7 +100,9 @@ int main()
 		glClearColor(0.07f, 0.13f, 0.17f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT);
 		//Specifying shader program to use
-		shader.Activate();
+		shaderProgram.Activate();
+		//Assigning value to the uniform float unIID. Must be done after the shader program is activated.
+		glUniform1f(uniID, 1.5f);
 		//Binding the VAO so its used by OpenGL
 		VAOObject.Bind();
 		//Draws the triangle using the GL_TRIANGLES primitive
@@ -115,7 +117,7 @@ int main()
 	VBOObject.Delete();
 	VAOObject.Delete();
 	EBOObject.Delete();
-	shader.Delete();
+	shaderProgram.Delete();
 
 	//Deleting window
 	glfwDestroyWindow(window);
