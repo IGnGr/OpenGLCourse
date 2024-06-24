@@ -1,28 +1,29 @@
 #include<iostream>
 #include<glad/glad.h>
 #include<GLFW/glfw3.h>
+#include<stb/stb_image.h>
+
+
 #include "ShaderClass.h"
 #include "VBO.h"
 #include "VAO.h"
 #include "EBO.h"
+#include "Texture.h"
+
 
 GLfloat vertices[] =
-{
-	-0.5f, -0.5f * float(sqrt(3)) / 3,       0.0f,  0.8f, 0.3f, 0.02f, //Left lower corner
-	0.5f, -0.5f * float(sqrt(3)) / 3,        0.0f,  0.8f, 0.3f, 0.02f, //Right lower corner
-	0.0f, 0.5f * float(sqrt(3)) * 2 / 3,     0.0f,  1.0f, 0.6f, 0.32f,//Upper corner
+{  // Coordinates					//Color					//Texture mapping coordinates
+	-0.5f, -0.5f , 0.0f,            1.0f, 0.0f, 0.0f,		0.0f, 0.0f, //Left lower corner
+	-0.5f,  0.5f , 0.0f,            0.0f, 1.0f, 0.0f,		0.0f, 1.0f, //Left upper corner
+	 0.5f,  0.5f , 0.0f,            0.0f, 0.0f, 1.0f,		1.0f, 1.0f,	//Right upper corner
+	 0.5f, -0.5f , 0.0f,            1.0f, 1.0f, 1.0f,		1.0f, 0.0f  //Right lower corner
 
-	-0.5f / 2, 0.5f * float(sqrt(3)) / 6,    0.0f,  0.9f, 0.45f, 0.17f,//Inner left
-	0.5f / 2, 0.5f * float(sqrt(3)) / 6,     0.0f,  0.9f, 0.45f, 0.17f,//Inner right
-	0.0f, -0.5f * float(sqrt(3)) / 3,        0.0f,  0.8f, 0.3f, 0.02f,//Inner down
 };
 
 GLuint indices[] =
 {
-	0, 3, 5, //Lower left triang2le
-	3, 2, 4, //Lower right triangle
-	5, 4, 1 // Upper triangle
-
+	0, 1, 2,
+	0, 2, 3
 };
 
 int main()
@@ -73,18 +74,26 @@ int main()
 
 	//Linking VAO to VBO and specifying layout
 	//Position
-	VAOObject.LinkAttrib(VBOObject, 0, 3, GL_FLOAT, 6 * sizeof(float), (void*)0);
+	VAOObject.LinkAttrib(VBOObject, 0, 3, GL_FLOAT, 8 * sizeof(float), (void*)0);
 	//Color
-	VAOObject.LinkAttrib(VBOObject, 1, 3, GL_FLOAT, 6 * sizeof(float), (void*) (3*sizeof(float)));
+	VAOObject.LinkAttrib(VBOObject, 1, 3, GL_FLOAT, 8 * sizeof(float), (void*) (3*sizeof(float)));
+	//Texture
+	VAOObject.LinkAttrib(VBOObject, 2, 2, GL_FLOAT, 8 * sizeof(float), (void*)  (6 * sizeof(float)));
 
 	//Unbinding once everything is instanciated
 	VAOObject.Unbind();
 	VBOObject.Unbind();
 	EBOObject.Unbind();
 
-	//Getting the uniform value from shaders
+	//Getting the uniform value for scale from shaders
 	GLuint uniID = glGetUniformLocation(shaderProgram.ID, "scale");
-	
+
+	//Textures
+
+	Texture catTexture("pop_cat.png", GL_TEXTURE_2D, GL_TEXTURE0, GL_RGBA, GL_UNSIGNED_BYTE);
+	catTexture.TexUnit(shaderProgram, "tex0", 0);
+
+
 	//Setting the color of the background
 	glClearColor(0.07f, 0.13f, 0.17f, 1.0f);
 
@@ -103,10 +112,12 @@ int main()
 		shaderProgram.Activate();
 		//Assigning value to the uniform float unIID. Must be done after the shader program is activated.
 		glUniform1f(uniID, 1.5f);
+		catTexture.Bind();
+
 		//Binding the VAO so its used by OpenGL
 		VAOObject.Bind();
 		//Draws the triangle using the GL_TRIANGLES primitive
-		glDrawElements(GL_TRIANGLES, 9, GL_UNSIGNED_INT, 0);
+		glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 		glfwSwapBuffers(window);
 
 		//GLFW event handling
@@ -118,7 +129,7 @@ int main()
 	VAOObject.Delete();
 	EBOObject.Delete();
 	shaderProgram.Delete();
-
+	catTexture.Delete();
 	//Deleting window
 	glfwDestroyWindow(window);
 	//GLFW exit to end the program
