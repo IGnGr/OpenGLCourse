@@ -1,3 +1,5 @@
+#define GLM_ENABLE_EXPERIMENTAL
+
 #include<iostream>
 #include<glad/glad.h>
 #include<GLFW/glfw3.h>
@@ -6,11 +8,12 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
-#include "ShaderClass.h"
-#include "VBO.h"
-#include "VAO.h"
-#include "EBO.h"
-#include "Texture.h"
+#include"ShaderClass.h"
+#include"VBO.h"
+#include"VAO.h"
+#include"EBO.h"
+#include"Texture.h"
+#include"Camera.h"
 
 
 GLfloat vertices[] =
@@ -99,10 +102,8 @@ int main()
 	GLuint uniID = glGetUniformLocation(shaderProgram.ID, "scale");
 
 	//Textures
-
 	Texture catTexture("brick.png", GL_TEXTURE_2D, GL_TEXTURE0, GL_RGBA, GL_UNSIGNED_BYTE);
 	catTexture.TexUnit(shaderProgram, "tex0", 0);
-
 
 	//Setting the color of the background
 	glClearColor(0.07f, 0.13f, 0.17f, 1.0f);
@@ -120,6 +121,9 @@ int main()
 	//Enabling depth buffer
 	glEnable(GL_DEPTH_TEST);
 
+
+	Camera camera(width, height, glm::vec3(0.0f, 0.0f, 2.0f));
+
 	//Main loop to be able to see the window
 	while (!glfwWindowShouldClose(window))
 	{
@@ -131,37 +135,24 @@ int main()
 		//Specifying shader program to use
 		shaderProgram.Activate();
 
+		//Handling player inputs
+		camera.Inputs(window);
+
+		//Updates camera matrix and exports it into the vertex shader
+		camera.Matrix(45.0f, 0.1f, 100.0f, shaderProgram, "camMatrix");
+
+
+		//Storing current time for the pyramid rotation
 		double currentTime = glfwGetTime();
 
+		//Rotating at 60fps 
 		if (currentTime - prevTime >= 1 / 60)
 		{
 			rotation += 0.5f;
 			prevTime = currentTime;
 		}
 
-		//Initializing matrices
-		glm::mat4 model = glm::mat4(1.0f);
-		glm::mat4 view = glm::mat4(1.0f);
-		glm::mat4 proj = glm::mat4(1.0f);
-
-		//Calculating the model, view and projection matrices
-		model = glm::rotate(model, glm::radians(rotation), glm::vec3(0.0f, 1.0f, 0.0f));
-		view = glm::translate(view, glm::vec3(0.0f, -0.5f, -2.0f));
-		proj = glm::perspective(glm::radians(45.0f), (float)width / height, 0.1f, 100.0f);
-
-
-		//Inserting the matrices into the vertex shader. via uniform 
-		int modelLoc = glGetUniformLocation(shaderProgram.ID, "model");
-		glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
-
-		int viewLoc = glGetUniformLocation(shaderProgram.ID, "view");
-		glUniformMatrix4fv(viewLoc, 1, GL_FALSE, glm::value_ptr(view));
-
-		int projLoc = glGetUniformLocation(shaderProgram.ID, "proj");
-		glUniformMatrix4fv(projLoc, 1, GL_FALSE, glm::value_ptr(proj));
-
-		//Assigning value to the uniform float unIID. Must be done after the shader program is activated.
-		glUniform1f(uniID, 1.5f);
+		//Binding the texture
 		catTexture.Bind();
 
 		//Binding the VAO so its used by OpenGL

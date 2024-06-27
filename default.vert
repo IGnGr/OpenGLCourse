@@ -5,17 +5,14 @@ layout (location = 2) in vec2 aText;
 
 out vec3 color;
 out vec2 textureCoordinates;
-uniform float scale;
 
-//Different matrices for 3D geometry
-uniform mat4 model;
-uniform mat4 view;
-uniform mat4 proj;
-
+//Matrix of the camera
+uniform mat4 camMatrix;
 
 void main()
 {
-   gl_Position = proj * view * model * vec4(aPos, 1.0);
+	//Transforming vertices into clip space via multiplying by camera matrix
+   gl_Position = camMatrix * vec4(aPos, 1.0);
    color = aColor;
    textureCoordinates = aText;
 }
