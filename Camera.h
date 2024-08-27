@@ -36,6 +36,8 @@ class Camera
 
 		//Calculates camera matrix
 		void UpdateMatrix(float FOVdeg, float nearPlane, float farPlane);
+
+		//Exports the camera matrix to a shader
 		void Matrix(Shader& shader, const char* uniform);
 
 		//Handles player inputs

@@ -173,23 +173,42 @@ int main()
 	lightVBO.Unbind();
 	lightEBO.Unbind();
 
-	glm::vec4 lightColor = glm::vec4(1.0f, 1.0f, 1.0f, 1.0f);
+	//Defining light source color
+	glm::vec4 lightColor = glm::vec4(1.0f, 1.0f,1.0f, 1.0f);
 
+	//Defining light position
 	glm::vec3 lightPos = glm::vec3(0.5, 0.5f, 0.5f);
+
+	//initializing light model matrix
 	glm::mat4 lightModel = glm::mat4(1.0f);
+
+	//calculating translation matrix via light model matrix and position
 	lightModel = glm::translate(lightModel, lightPos);
 
+	//Defining pyramid position
 	glm::vec3 pyramidPos = glm::vec3(0.0f, 0.0f, 0.0f);
+	//Initializing pyramid model matrix
 	glm::mat4 pyramidModel = glm::mat4(1.0f);
+
+	//calculating translation matrix via pyramid model matrix and position
 	pyramidModel = glm::translate(pyramidModel, pyramidPos);
 
+	//activation of the shader required in order to set uniforms
 	lightShader.Activate();
+
+	//Exporting model matrix to lighting vertex shader
 	glUniformMatrix4fv(glGetUniformLocation(lightShader.ID, "model"), 1, GL_FALSE, glm::value_ptr(lightModel));
+	//Exporting lighing color to lighting fragment shader
 	glUniform4f(glGetUniformLocation(lightShader.ID, "lightColor"), lightColor.x, lightColor.y, lightColor.z, lightColor.w);
 
+	//activation of the shader required in order to set uniforms
 	shaderProgram.Activate();
+
+	//Exporting model matrix to pyramid vertex shader
 	glUniformMatrix4fv(glGetUniformLocation(shaderProgram.ID, "model"), 1, GL_FALSE, glm::value_ptr(pyramidModel));
+	//Exporting light color to pyramid fragment shader
 	glUniform4f(glGetUniformLocation(shaderProgram.ID, "lightColor"), lightColor.x, lightColor.y, lightColor.z, lightColor.w);
+	//Exporting light source position to pyramid fragment shader
 	glUniform3f(glGetUniformLocation(shaderProgram.ID, "lightPos"), lightPos.x, lightPos.y, lightPos.z);
 
 
@@ -236,9 +255,10 @@ int main()
 		//Updates camera matrix and exports it into the vertex shader
 		camera.UpdateMatrix(45.0f, 0.1f, 100.0f);
 
-
+		//Exports the camera position to the fragment shader to be able to calculate specular lighting
 		glUniform3f(glGetUniformLocation(shaderProgram.ID, "camPos"), camera.Position.x, camera.Position.y, camera.Position.z);
 
+		//Exports the camera matrix to the vertex shader of the pyramid
 		camera.Matrix(shaderProgram, "camMatrix");
 
 
@@ -270,6 +290,11 @@ int main()
 	EBOObject.Delete();
 	shaderProgram.Delete();
 	catTexture.Delete();
+	lightVAO.Delete();
+	lightVBO.Delete();
+	lightEBO.Delete();
+	lightShader.Delete();
+
 	//Deleting window
 	glfwDestroyWindow(window);
 	//GLFW exit to end the program
