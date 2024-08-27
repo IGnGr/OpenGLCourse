@@ -1,7 +1,7 @@
 #include "Texture.h"
 
 
-Texture::Texture(const char* image, GLenum texType, GLenum slot, GLenum format, GLenum pixelType)
+Texture::Texture(const char* image, GLenum texType, GLuint slot, GLenum format, GLenum pixelType)
 {
 	type = texType;
 
@@ -16,7 +16,8 @@ Texture::Texture(const char* image, GLenum texType, GLenum slot, GLenum format, 
 	//Generating Texture object
 	glGenTextures(1, &ID);
 	//Assigning the texture to a Texture unit
-	glActiveTexture(slot);
+	glActiveTexture(GL_TEXTURE0 + slot);
+	unit = slot;
 	glBindTexture(texType, ID);
 
 	//Configuring the type of algorithm to be used when changing the image size
@@ -52,6 +53,7 @@ void Texture::TexUnit(Shader& shader, const char* uniform, GLuint unit)
 
 void Texture::Bind()
 {
+	glActiveTexture(GL_TEXTURE0 + unit);
 	glBindTexture(type, ID);
 }
 
