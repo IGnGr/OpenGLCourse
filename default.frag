@@ -13,6 +13,8 @@ in vec3 currentPos;
 //Getting texture unit from main function
 uniform sampler2D tex0;
 
+uniform sampler2D tex1;
+
 //geting lightColor information from main function
 uniform vec4 lightColor;
 //getting lightPosition information from main function
@@ -38,7 +40,7 @@ void main()
 	float specular = specAmount * specularLight;
 
 	//final color
-	FragColor = texture(tex0, textureCoordinates) * lightColor * (difuse + ambient + specular);
+	FragColor = (texture(tex0, textureCoordinates) * (difuse + ambient) + texture(tex1, textureCoordinates).r * specular) * lightColor;
 
 
 }
