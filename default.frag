@@ -1,19 +1,21 @@
 #version 330 core
 out vec4 FragColor;
 
+//importing currentPosition value from vertex shader
+in vec3 currentPos;
+//importing normal values from vertex shader
+in vec3 normal;
 //importing color from vertex shader
 in vec3 color;
 //importing texture coordinates from vertex shader
 in vec2 textureCoordinates;
-//importing normal values from vertex shader
-in vec3 normal;
-//importing currentPosition value from vertex shader
-in vec3 currentPos;
+
+
 
 //Getting texture unit from main function
-uniform sampler2D tex0;
+uniform sampler2D diffuse0;
 
-uniform sampler2D tex1;
+uniform sampler2D specular0;
 
 //geting lightColor information from main function
 uniform vec4 lightColor;
@@ -51,7 +53,7 @@ vec4 pointLight()
 	float specAmount = pow(max(dot(viewDirection, reflectionDirection), 0.0f), 8);
 	float specular = specAmount * specularLight;
 
-	return (texture(tex0, textureCoordinates) * (inten * difuse + ambient) + texture(tex1, textureCoordinates).r * specular * inten) * lightColor;
+	return (texture(diffuse0, textureCoordinates) * (inten * difuse + ambient) + texture(specular0, textureCoordinates).r * specular * inten) * lightColor;
 
 }
 
@@ -74,7 +76,7 @@ vec4 directionalLight()
 	float specAmount = pow(max(dot(viewDirection, reflectionDirection), 0.0f), 8);
 	float specular = specAmount * specularLight;
 
-	return (texture(tex0, textureCoordinates) * (difuse + ambient) + texture(tex1, textureCoordinates).r * specular) * lightColor;
+	return (texture(diffuse0, textureCoordinates) * (difuse + ambient) + texture(specular0, textureCoordinates).r * specular) * lightColor;
 }
 
 vec4 spotLight()
@@ -82,8 +84,8 @@ vec4 spotLight()
 	//Cones (cosine of the angle)
 	//The greater, the smaller the cone
 	//We use 2 to have a smooth transition from light to dark
-	float outerCone = 0.5f;
-	float innerCone = 0.55f;
+	float outerCone = 0.9f;
+	float innerCone = 0.95f;
 	
 	//ambient lighting
 	float ambient = 0.2f;
@@ -106,7 +108,7 @@ vec4 spotLight()
 	//The greater the angle, the smaller the intensity
 	float inten = clamp( (angle - outerCone) / (innerCone - outerCone), 0.0f, 1.0f);
 
-	return (texture(tex0, textureCoordinates) * (inten * difuse + ambient) + texture(tex1, textureCoordinates).r * specular * inten) * lightColor;
+	return (texture(diffuse0, textureCoordinates) * (inten * difuse + ambient) + texture(specular0, textureCoordinates).r * specular * inten) * lightColor;
 
 }
 
