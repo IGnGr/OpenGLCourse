@@ -95,10 +95,14 @@ int main()
 	//Instancing shader program
 	Shader shaderProgram = Shader("default.vert", "default.frag");
 
+	//Instancing vertices for the model
 	std::vector<Vertex> verts(vertices, vertices + sizeof(vertices) / sizeof(Vertex));
+	//Instancing indices for the model
 	std::vector<GLuint> ind(indices, indices + sizeof(indices) / sizeof(GLuint));
+	//Instancing textures for the model
 	std::vector<Texture> tex(textures, textures + sizeof(textures) / sizeof(Texture));
 
+	//Instancing model mesh
 	Mesh floor = Mesh(verts, ind, tex);
 
 	//LIGHTING
@@ -106,9 +110,12 @@ int main()
 	//Instancing shader program
 	Shader lightShader = Shader("light.vert", "light.frag");
 
+	//Instancing vertices for the light source
 	std::vector<Vertex> lightVerts(lightVertices, lightVertices + sizeof(lightVertices) / sizeof(Vertex));
+	//Instancing indicesfor the light source
 	std::vector<GLuint> lightInd(lightIndices, lightIndices + sizeof(lightIndices) / sizeof(GLuint));
 
+	//Instancing light mesh 
 	Mesh light = Mesh(lightVerts, lightInd, tex);
 
 	//Defining light source color

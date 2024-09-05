@@ -4,6 +4,7 @@
 #include<glm/glm.hpp>
 #include<vector>;
 
+//Struct to standarize the vertices for use in meshes
 struct Vertex
 {
 
@@ -18,6 +19,7 @@ class VBO
 {
 	public:
 		GLuint ID;
+		//Generates VBO and links it to the vertices
 		VBO(std::vector<Vertex>& vertices);
 
 		void Bind();

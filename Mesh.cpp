@@ -52,6 +52,7 @@ void Mesh::Draw(Shader& shader, Camera& camera)
 		{
 			num = std::to_string(numSpecular++);
 		}
+		//We create uniforms dinamically 
 		textures[i].TexUnit(shader, (type + num).c_str(), i);
 		textures[i].Bind();
 
