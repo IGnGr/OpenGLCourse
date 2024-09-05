@@ -1,13 +1,13 @@
 #include "EBO.h"
 
-EBO::EBO(GLuint* indices, GLsizeiptr size)
+EBO::EBO(std::vector<GLuint>& vertices)
 {
 	//Generating buffer
 	glGenBuffers(1, &ID);
 	//Binding the EBO, specifying its type GL_ARRAY_BUFFER
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ID);
 	//Inserting the vertices into the EBO
-	glBufferData(GL_ELEMENT_ARRAY_BUFFER, size, indices, GL_STATIC_DRAW);
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, vertices.size() * sizeof(GLuint), vertices.data(), GL_STATIC_DRAW);
 
 }
 

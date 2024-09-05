@@ -1,19 +1,20 @@
 #define GLM_ENABLE_EXPERIMENTAL
 
-#include<iostream>
-#include<glad/glad.h>
-#include<GLFW/glfw3.h>
-#include<stb/stb_image.h>
+#include <iostream>
+#include <vector>
+#include <glad/glad.h>
+#include <GLFW/glfw3.h>
+#include <stb/stb_image.h>
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
-#include"ShaderClass.h"
-#include"VBO.h"
-#include"VAO.h"
-#include"EBO.h"
-#include"Texture.h"
-#include"Camera.h"
+#include "ShaderClass.h"
+#include "VBO.h"
+#include "VAO.h"
+#include "EBO.h"
+#include "Texture.h"
+#include "Camera.h"
 
 
 const unsigned int width = 800;
@@ -21,20 +22,20 @@ const unsigned int height = 800;
 
 
 // Vertices coordinates
-GLfloat vertices[] =
-{ //     COORDINATES     /        COLORS          /    TexCoord   /        NORMALS       //
-	-1.0f, 0.0f,  1.0f,		0.0f, 0.0f, 0.0f,		0.0f, 0.0f,		0.0f, 1.0f, 0.0f,
-	-1.0f, 0.0f, -1.0f,		0.0f, 0.0f, 0.0f,		0.0f, 1.0f,		0.0f, 1.0f, 0.0f,
-	 1.0f, 0.0f, -1.0f,		0.0f, 0.0f, 0.0f,		1.0f, 1.0f,		0.0f, 1.0f, 0.0f,
-	 1.0f, 0.0f,  1.0f,		0.0f, 0.0f, 0.0f,		1.0f, 0.0f,		0.0f, 1.0f, 0.0f
+std::vector<Vertex> vertices{
+	//COORDINATES						/ NORMALS					/Color							/Textures UV       //
+	  glm::vec3(-1.0f, 0.0f,  1.0f), glm::vec3(0.0f, 1.0f, 0.0f), glm::vec3(0.0f, 0.0f, 0.0f),	glm::vec3(0.0f, 0.0f,0.0f),
+	  glm::vec3(-1.0f, 0.0f, -1.0f), glm::vec3(0.0f, 1.0f, 0.0f),	glm::vec3(0.0f, 0.0f, 0.0f),	glm::vec3(0.0f, 1.0f,0.0f),
+	  glm::vec3(1.0f, 0.0f, -1.0f), glm::vec3(0.0f, 1.0f, 0.0f),	glm::vec3(0.0f, 0.0f, 0.0f),	glm::vec3(1.0f, 1.0f,0.0f),
+	  glm::vec3(1.0f, 0.0f,  1.0f), glm::vec3(0.0f, 1.0f, 0.0f), glm::vec3(0.0f, 0.0f, 0.0f),		glm::vec3(1.0f, 0.0f,0.0f)
 };
 
 // Indices for vertices order
-GLuint indices[] =
+std::vector<GLuint> indices(
 {
 	0, 1, 2,
 	0, 2, 3
-};
+});
 
 
 GLfloat lightVertices[] =
@@ -110,8 +111,8 @@ int main()
 	VAOObject.Bind();
 
 	//Instancing VBO and EBO
-	VBO VBOObject = VBO(vertices, sizeof(vertices));
-	EBO EBOObject = EBO(indices, sizeof(indices));
+	VBO VBOObject = VBO(vertices);
+	EBO EBOObject = EBO(indices);
 
 	//Linking VAO to VBO and specifying layout
 	//Position
