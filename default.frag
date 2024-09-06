@@ -25,6 +25,9 @@ uniform vec3 lightPos;
 uniform vec3 camPos;
 
 
+
+
+
 vec4 pointLight()
 {
 	//Calculating intensity using a cuadratic polynomial decay

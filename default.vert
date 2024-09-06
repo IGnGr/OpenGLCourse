@@ -13,13 +13,17 @@ out vec3 normal;
 //Matrix of the camera
 uniform mat4 camMatrix;
 uniform mat4 model;
+uniform mat4 translation;
+uniform mat4 rotation;
+uniform mat4 scale;
+
 
 void main()
 {
-	currentPos = vec3(model * vec4(aPos, 1.0f));
+	currentPos = vec3(model * translation * -rotation * scale * vec4(aPos, 1.0f));
 	normal = aNormal;
 	color = aColor;
-	textureCoordinates = aText;
+	textureCoordinates = mat2(0.0, -1.0, 1.0, 0.0) * aText;
 
    	//Transforming vertices into clip space via multiplying by camera matrix
    gl_Position = camMatrix * vec4(currentPos, 1.0);
