@@ -3,7 +3,7 @@
 Model::Model(const char* file)
 {
 	std::string text = getFileContents(file);
-	JSON = json::parse(file);
+	JSON = json::parse(text);
 
 	Model::file = file;
 	data = getData();
@@ -24,7 +24,7 @@ void Model::loadMesh(unsigned int indMesh)
 	unsigned int posAccInd = JSON["meshes"][indMesh]["primitives"][0]["attributes"]["POSITION"];
 	unsigned int normalAccInd = JSON["meshes"][indMesh]["primitives"][0]["attributes"]["NORMAL"];
 	unsigned int texAccInd = JSON["meshes"][indMesh]["primitives"][0]["attributes"]["TEXCOORD_0"];
-	unsigned int indAccInd = JSON["meshes"][indMesh]["primitives"][0]["attributes"]["indices"];
+	unsigned int indAccInd = JSON["meshes"][indMesh]["primitives"][0]["indices"];
 
 	std::vector<float> posVec = getFloats(JSON["accessors"][posAccInd]);
 	std::vector<glm::vec3> positions = groupFloatsVec3(posVec);
@@ -55,7 +55,7 @@ void Model::traverseNode(unsigned int nextNode, glm::mat4 matrix)
 		}
 		translation = glm::make_vec3(transValues);
 	}
-	glm::quat rotation = glm::quat(1.0f, 0.0f, 0.0f, 0.0f);
+	glm::quat rotation = glm::angleAxis(glm::radians(-45.f), glm::vec3(.0f, 1.0f, 0.0f));
 
 	if (node.find("rotation") != node.end())
 	{
@@ -147,7 +147,7 @@ std::vector<float> Model::getFloats(json accessor)
 	std::string type = accessor["type"];
 
 	json bufferView = JSON["bufferViews"][buffViewInd];
-	unsigned int byteOffset = bufferView["ByteOffset"];
+	unsigned int byteOffset = bufferView["byteOffset"];
 
 	unsigned int numperVert; 
 	if (type == "SCALAR") numperVert = 1;
@@ -181,7 +181,7 @@ std::vector<GLuint> Model::getIndices(json accessor)
 	unsigned int componentType = accessor["componentType"];
 
 	json bufferView = JSON["bufferViews"][buffViewInd];
-	unsigned int byteOffset = bufferView["ByteOffset"];
+	unsigned int byteOffset = bufferView.value("byteOffset",0);
 
 	unsigned int dataBegining = byteOffset + accByteOffset;
 
@@ -280,7 +280,7 @@ std::vector<glm::vec2> Model::groupFloatsVec2(std::vector<float> floatVec)
 {
 	std::vector<glm::vec2> vectors;
 
-	for (int i = 0; i < floatVec.size(); i++)
+	for (int i = 0; i < floatVec.size(); i)
 	{
 		vectors.push_back(glm::vec2(floatVec[i++], floatVec[i++]));
 	}
@@ -293,7 +293,7 @@ std::vector<glm::vec3> Model::groupFloatsVec3(std::vector<float> floatVec)
 {
 	std::vector<glm::vec3> vectors;
 
-	for (int i = 0; i < floatVec.size(); i++)
+	for (int i = 0; i < floatVec.size(); i)
 	{
 		vectors.push_back(glm::vec3(floatVec[i++], floatVec[i++], floatVec[i++]));
 	}
@@ -306,7 +306,7 @@ std::vector<glm::vec4> Model::groupFloatsVec4(std::vector<float> floatVec)
 {
 	std::vector<glm::vec4> vectors;
 
-	for (int i = 0; i < floatVec.size(); i++)
+	for (int i = 0; i < floatVec.size(); i)
 	{
 		vectors.push_back(glm::vec4(floatVec[i++], floatVec[i++], floatVec[i++], floatVec[i++]));
 	}
