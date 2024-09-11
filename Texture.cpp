@@ -28,6 +28,7 @@ Texture::Texture(const char* image, const char* texType, GLuint slot)
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
 
+	//Checking the number of channels the texture has and using the corresponding loading function
 	if (numColCh == 4)
 	{
 		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, widthImg, heightImg, 0, GL_RGBA, GL_UNSIGNED_BYTE, bytes);
@@ -57,9 +58,11 @@ Texture::Texture(const char* image, const char* texType, GLuint slot)
 
 void Texture::TexUnit(Shader& shader, const char* uniform, GLuint unit)
 {
+	//Gets uniform location
 	GLuint diffuse0Uniform = glGetUniformLocation(shader.ID, uniform);
 	//Activating shader before changing the unfiform value
 	shader.Activate();
+	//Setting value for uniform
 	glUniform1i(diffuse0Uniform, unit);
 
 
