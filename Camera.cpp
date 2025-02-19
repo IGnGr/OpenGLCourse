@@ -70,11 +70,11 @@ void Camera::Inputs(GLFWwindow* window)
 	//Sprint
 	if (glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS)
 	{
-		speed = 0.4f;
+		speed = runSpeed;
 	}
 	else if (glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_RELEASE)
 	{
-		speed = 0.1f;
+		speed = baseSpeed;
 	}
 
 	//Rotation

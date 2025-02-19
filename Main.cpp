@@ -3,8 +3,8 @@
 #include "Mesh.h"
 #include "Model.h"
 
-const unsigned int width = 800;
-const unsigned int height = 800;
+const unsigned int width = 1280;
+const unsigned int height = 1280;
 
 
 
@@ -114,7 +114,7 @@ int main()
 		camera.Inputs(window);
 
 		//Updates camera matrix and exports it into the vertex shader
-		camera.UpdateMatrix(45.0f, 0.1f, 100.0f);
+		camera.UpdateMatrix(45.0f, 0.1f, 300.0f);
 
 		sword.Draw(shaderProgram,camera);
 

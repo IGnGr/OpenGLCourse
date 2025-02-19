@@ -12,6 +12,9 @@
 
 #include "ShaderClass.h"
 
+constexpr float baseSpeed = 0.01f;
+constexpr float runSpeed = 0.1f;
+
 class Camera
 {
 	public:
@@ -28,9 +31,9 @@ class Camera
 		int height;
 
 		//Camera movement speed
-		float speed = 0.1f;
+		float speed = baseSpeed;
 		//Camera rotation speed
-		float sensitivity = 100.0f;
+		float sensitivity = 10.0f;
 
 		Camera(int width, int height, glm::vec3 position);
 
